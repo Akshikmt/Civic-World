@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Civic Issue Reporting</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #1d2671, #c33764);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  background: #fff;
+  width: 400px;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+  animation: slideUp 0.9s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+input, select, textarea, button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 2px rgba(108,99,255,0.15);
+}
+
+textarea {
+  resize: none;
+  height: 90px;
+}
+
+button {
+  margin-top: 18px;
+  background: linear-gradient(135deg, #6c63ff, #48c6ef);
+  color: white;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+}
+
+.loader {
+  display: none;
+  text-align: center;
+  margin-top: 12px;
+  color: #666;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>Report Civic Issue</h2>
+
+  <input id="name" placeholder="Your Name">
+  <select id="issue">
+    <option>Garbage</option>
+    <option>Road Damage</option>
+    <option>Street Light</option>
+    <option>Water Supply</option>
+  </select>
+
+  <input id="city" placeholder="City" required>
+  <input id="state" placeholder="State" required>
+  <input id="area" placeholder="Area / Locality" required>
+
+  <textarea id="description" placeholder="Describe the issue" required></textarea>
+
+  <div class="photo-group">
+    <label for="photo" class="photo-label">Upload Photo</label>
+    <input type="file" id="photo" accept="image/*" required>
+  </div>
+
+  <button onclick="submitIssue()">Submit Issue</button>
+  <div class="loader" id="loader">Submitting…</div>
+</div>
+
+<script>
+function submitIssue() {
+  const file = document.getElementById("photo").files[0];
+  if (!file) {
+    alert("Please upload a photo");
+    return;
+  }
+
+  document.getElementById("loader").style.display = "block";
+
+  const reader = new FileReader();
+  reader.onload = function () {
+    const base64Image = reader.result.split(",")[1];
+
+    fetch("https://script.google.com/macros/s/AKfycbwEsN3ZIN-HTXeYELT7VdTAyq1bhdCMI3JyPaUDD5PoNMn4Hjv0UWMzyjfhKF4cTpJ2/exec", {
+      method: "POST",
+      body: JSON.stringify({
+        name: name.value,
+        issue: issue.value,
+        city: city.value,
+        state: state.value,
+        area: area.value,
+        description: description.value,
+        image: base64Image,
+        imageType: file.type
+      })
+    })
+    .then(() => {
+      window.location.href = "thankyou.html";
+    })
+    .catch(() => {
+      alert("Submission failed");
+      document.getElementById("loader").style.display = "none";
+    });
+  };
+
+  reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>
